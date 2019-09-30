@@ -83,4 +83,17 @@ suite('Functional Tests', function() {
 
   });
 
+    // extra-suite security
+    suite('GET / => check security', function() {
+      test('cache-control, x-powered-by', function(done) {
+        chai.request(server)
+        .get('/api')
+          .end(function(err, res){ 
+           assert.equal(res.header['cache-control'], 'no-store, no-cache, must-revalidate, proxy-revalidate');
+           assert.equal(res.header['x-powered-by'], 'PHP 4.2.0');
+           done();
+        });         
+      });
+    });
+  
 });
