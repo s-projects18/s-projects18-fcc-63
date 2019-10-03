@@ -32,47 +32,39 @@ exports.checkConnection = () => {
 }
 
 // schema --------------------------------
-const issuesSchema = new Schema({
-  projectname: {type: String}, //* -> not-relational
-	issue_title: {type: String}, //* , unique:true -> unique in combination with projectname ???
-  issue_text: {type: String}, //*
+const booksSchema = new Schema({
+  title: {type: String}, //*
 	created_on: {type: Date, default: Date.now},//auto
-  updated_on: {type: Date, default: Date.now},//auto, update on change
-  created_by: {type: String},//*
-  assigned_to: {type: String},//opt
-  open: {type: Boolean},//???
-  status_text: {type: String}//opt
+  comments: []
 });
 
-/*
-  TODO: maybe a project-schema can be added
-  - problem1: project can only be added together with an issue
-  - problem2: a list of existing projects can only be derived by querying ALL issues
-  
-*/
-
 // model --------------------------------
-const Issues = mongoose.model('issue', issuesSchema ); // Mongoose:issue <=> MongoDB:issues
+const Books = mongoose.model('book', booksSchema ); // Mongoose:book <=> MongoDB:books
 
 
 // read all issues --------------------------------
 // next(err, docs)
-exports.getProject = (projectname, next, filter={}) => {
-  let condition = Object.assign({projectname: projectname}, filter);
+exports.getBooks = (filter, next) => {
   // doc is a Mongoose-object that CAN'T be modified
   // lean()+exec() will return a plain JS-object instead
-  Issues.find(condition).lean().exec((err, docs) => { 
-    if(docs==null) { // entry doesn't exist
+  Books.find(filter).lean().exec((err, docs) => { 
+    if(err!==null) {
+      next(err, null);  
+    } else if(docs==null) { // entry doesn't exist
       next('no entry found', null);      
     } else {
+      docs.forEach((v)=>{
+        v.commentcount=0;
+        if(v.hasOwnProperty('comments')) v.commentcount = v.comments.length;
+      });
       next(null, docs);
     }
   });
 }
 
-exports.insertIssue = (insertDataObj, next) => {
+exports.insertBook = (insertDataObj, next) => {
   // create object based on model
-  let urlObj = new Issues(insertDataObj); 
+  let urlObj = new Books(insertDataObj); 
   const pr = urlObj.save();
   pr.then(function (doc) {
     next(null, doc); // new doc created
@@ -82,19 +74,19 @@ exports.insertIssue = (insertDataObj, next) => {
   }); 
 }
 
-exports.updateIssue = (id, updateDataObj, next) => {
+/*exports.updateIssue = (id, updateDataObj, next) => {
   updateDataObj.updated_on = new Date();
   Issues.findOneAndUpdate({_id: id}, updateDataObj, {new:true}, next);    
-}
+}*/
 
-exports.deleteIssue = (id, next) => {
-  Issues.deleteOne({_id: id}, (err, resultObject) => {
+exports.deleteBook = (id, next) => {
+  Books.deleteOne({_id: id}, (err, resultObject) => {
+    console.log(222, id);
     if(err==null) {
-      next(null, {deletedCount: resultObject.n}); 
+      next(null, resultObject); 
     } else {
       console.log(err); // eg: wrong format for id -> casting error
       next(err, null);     
     }
   });
- 
 }
