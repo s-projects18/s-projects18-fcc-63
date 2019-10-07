@@ -41,9 +41,10 @@ const booksSchema = new Schema({
 // model --------------------------------
 const Books = mongoose.model('book', booksSchema ); // Mongoose:book <=> MongoDB:books
 
-
-// read all issues --------------------------------
+// crud --------------------------------
 // next(err, docs)
+
+// read all issues 
 exports.getBooks = (filter, next) => {
   // doc is a Mongoose-object that CAN'T be modified
   // lean()+exec() will return a plain JS-object instead
@@ -79,13 +80,38 @@ exports.insertBook = (insertDataObj, next) => {
   Issues.findOneAndUpdate({_id: id}, updateDataObj, {new:true}, next);    
 }*/
 
+exports.addComment = (bookId, comment, next) => {
+  exports.getBooks({_id:bookId}, (err, doc)=>{
+        if(err!==null) {
+          console.log(err);
+          next(err, null);
+        } else {
+          const book= doc[0]; // just one
+          book.updated_on = new Date();
+          book.comments.push(comment);
+          Books.findOneAndUpdate({_id: bookId}, book, {}, next); 
+        }     
+  });
+  
+}
+
 exports.deleteBook = (id, next) => {
   Books.deleteOne({_id: id}, (err, resultObject) => {
-    console.log(222, id);
     if(err==null) {
       next(null, resultObject); 
     } else {
       console.log(err); // eg: wrong format for id -> casting error
+      next(err, null);     
+    }
+  });
+}
+
+exports.deleteAllBooks = (next) => {
+  Books.deleteMany({}, (err, resultObject) => {
+    if(err==null) {
+      next(null, resultObject); 
+    } else {
+      console.log(err); 
       next(err, null);     
     }
   });
