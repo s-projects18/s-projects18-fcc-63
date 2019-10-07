@@ -47,7 +47,7 @@ $( document ).ready(function() {
       type: 'delete',
       success: function(data) {
         //update list
-        $('#detailComments').html('<p style="color: red;">'+data+'<p><p>Refresh the page</p>');
+        $('#detailComments').html('<p style="color: red;">'+JSON.stringify(data)+'<p><p>Refresh the page</p>');
       },
       error: function(jqXHR, textStatus, errorThrown ) {
         $('#detailComments').html("ERROR: " + jqXHR.responseText);
@@ -98,6 +98,7 @@ $( document ).ready(function() {
       data: $('#newBookForm').serialize(),
       success: function(data) {
         //update list
+        $('#bookDetail').html(data.message);
       },
       error: function(jqXHR, textStatus, errorThrown ) {
         $('#detailComments').html("ERROR: " + jqXHR.responseText);
