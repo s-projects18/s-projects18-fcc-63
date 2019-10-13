@@ -36,16 +36,35 @@ suite('Functional Tests', function() {
   */
 
   suite('Routing tests', function() {
-
+  var globalBook = {};
 
     suite('POST /api/books with title => create book object/expect book object', function() {
       
       test('Test POST /api/books with title', function(done) {
-        //done();
+        chai.request(server)
+          .post('/api/books')
+          .send({
+            title: 'Functional Testing Title'  
+          })
+          .end(function(err, res){
+            assert.equal(res.status, 200);
+            assert.equal(res.body.title, 'Functional Testing Title');
+            globalBook = res.body; // for later use
+            done();
+          });
       });
       
       test('Test POST /api/books with no title given', function(done) {
-        //done();
+        chai.request(server)
+          .post('/api/books')
+          .send({
+            title: ''  
+          })
+          .end(function(err, res){
+            assert.equal(res.status, 500);
+            assert.equal(res.text, 'title is empty');
+            done();
+          });
       });
       
     });
@@ -54,16 +73,36 @@ suite('Functional Tests', function() {
     suite('GET /api/books => array of books', function(){
       
       test('Test GET /api/books',  function(done){
-        //done();
+        chai.request(server)
+          .get('/api/books')
+          .end(function(err,res){
+            assert.equal(res.status, 200);
+          
+            let data = JSON.parse(res.text);
+            assert.equal(Array.isArray(data), true);
+          
+            let hit = data.filter(function(v,i){
+              if(v['_id']==globalBook._id) return true;
+              return false;
+            });
+            assert.equal(hit.length,1);
+          
+            done();
+        });
       });      
-      
     });
-
 
     suite('GET /api/books/[id] => book object with [id]', function(){
       
       test('Test GET /api/books/[id] with id not in db',  function(done){
-        //done();
+        chai.request(server)
+          .get('/api/books/555555555555555555555555')
+          .end(function(err, res){
+            assert.equal(res.status, 200);
+console.log(res)
+          
+            done();
+          });
       });
       
       test('Test GET /api/books/[id] with valid id in db',  function(done){
@@ -83,17 +122,17 @@ suite('Functional Tests', function() {
 
   });
 
-    // extra-suite security
-    suite('GET / => check security', function() {
-      test('cache-control, x-powered-by', function(done) {
-        chai.request(server)
-        .get('/api')
-          .end(function(err, res){ 
-           assert.equal(res.header['cache-control'], 'no-store, no-cache, must-revalidate, proxy-revalidate');
-           assert.equal(res.header['x-powered-by'], 'PHP 4.2.0');
-           done();
-        });         
-      });
+  // extra: suite security
+  suite('GET / => check security', function() {
+    test('cache-control, x-powered-by', function(done) {
+      chai.request(server)
+      .get('/api')
+        .end(function(err, res){ 
+         assert.equal(res.header['cache-control'], 'no-store, no-cache, must-revalidate, proxy-revalidate');
+         assert.equal(res.header['x-powered-by'], 'PHP 4.2.0');
+         done();
+      });         
     });
+  });
   
 });

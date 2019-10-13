@@ -27,6 +27,7 @@ module.exports = function (app) {
       database.getBooks({}, (err,doc)=>{
         if(err!==null) {
           console.log(err);
+          res.status(500).send('Cannot get /api/books');
         } else {
           res.json(doc);
         }        
@@ -36,10 +37,16 @@ module.exports = function (app) {
     // I can post a title to /api/books to add a book and returned will be the object with the title and a unique _id
     .post(function (req, res){
       var title = req.body.title;
+      if(title=='') {
+        res.status(500).send('title is empty');
+        return;
+      }
+    
       //response will contain new book object including atleast _id and title
       database.insertBook({title: title}, (err, doc)=>{
         if(err!==null) {
           console.log(err);
+          res.status(500).send('Cannot insert book');
         } else {
           res.json({title: doc.title, _id: doc._id});
         }
@@ -61,6 +68,9 @@ module.exports = function (app) {
 
 
   // [2] route with id -----------------
+  
+// TODO: If I try to request a book that doesn't exist I will get a 'no book exists' message.
+  
   // I can get /api/books/{_id} to retrieve a single object of a book containing title, _id,
   // & an array of comments (empty array if no comments present).
   app.route('/api/books/:id')
@@ -71,7 +81,10 @@ module.exports = function (app) {
         if(err!==null) {
           console.log(err);
         } else {
-          res.json(doc[0]); // just one
+          if(doc.length==0) {
+            res.json(new Error("no book exists"));
+          }
+          else res.json(doc[0]); // just one
         }        
       });
     })
