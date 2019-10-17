@@ -13,6 +13,11 @@ var runner            = require('./test-runner');
 // mount database-helper lib
 var database = require('./helper/database.js');
 
+// using express-response-formatter
+// https://github.com/aofleejay/express-response-formatter
+// { meta: ..., data: ...,  error: ... }
+const responseEnhancer = require('express-response-formatter')
+
 
 // ================= [2] create + configure app =====================
 var app = express();
@@ -24,6 +29,9 @@ app.use(helmet.xssFilter()); // extra
 app.use('/public', express.static(process.cwd() + '/public')); // js, css
 
 app.use(cors({origin: '*'})); //USED FOR FCC TESTING PURPOSES ONLY!
+
+// Add formatter functions to "res" object via "responseEnhancer()"
+app.use(responseEnhancer());
 
 
 // ----------------- middleware functions -----------------------

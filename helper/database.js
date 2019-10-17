@@ -86,13 +86,18 @@ exports.addComment = (bookId, comment, next) => {
           console.log(err);
           next(err, null);
         } else {
-          const book= doc[0]; // just one
+          const book = JSON.parse(JSON.stringify(doc[0])); // just one
           book.updated_on = new Date();
           book.comments.push(comment);
-          Books.findOneAndUpdate({_id: bookId}, book, {}, next); 
+          Books.findOneAndUpdate({_id: bookId}, book, {}, (err, doc)=>{
+            if(err!==null) {
+              next(err, null);
+            } else {
+              next(null, book);
+            }
+          }); 
         }     
   });
-  
 }
 
 exports.deleteBook = (id, next) => {
