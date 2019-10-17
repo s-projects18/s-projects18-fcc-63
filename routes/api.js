@@ -16,7 +16,8 @@
 
 var database = require("../helper/database.js");
 
-module.exports = function (app) {
+
+module.exports = function(app) {
 
   // [1] route without id -----------------
   // I can get /api/books to retrieve an aray of all books containing title, _id, & commentcount
@@ -24,12 +25,13 @@ module.exports = function (app) {
     .get(function (req, res){
       //response will be array of book objects
       //json res format: [{"_id": bookid, "title": book_title, "commentcount": num_of_comments },...]
-      database.getBooks({}, (err,doc)=>{
+      database.getBooks({}, (err,doc)=>{            
         if(err!==null) {
           console.log(err);
-          res.status(500).send('Cannot get /api/books');
+          // new Error('...') -> obj not sended to the client?
+          res.formatter.serverError(['Cannot get /api/books']); // 500
         } else {
-          res.json(doc);
+          res.formatter.ok(doc);
         }        
       });
     })
@@ -38,7 +40,7 @@ module.exports = function (app) {
     .post(function (req, res){
       var title = req.body.title;
       if(title=='') {
-        res.status(500).send('title is empty');
+        res.formatter.badRequest(['title is empty']); // 400
         return;
       }
     
@@ -46,9 +48,9 @@ module.exports = function (app) {
       database.insertBook({title: title}, (err, doc)=>{
         if(err!==null) {
           console.log(err);
-          res.status(500).send('Cannot insert book');
+          res.formatter.serverError(['Cannot insert book']); // 500
         } else {
-          res.json({title: doc.title, _id: doc._id});
+          res.formatter.ok({title: doc.title, _id: doc._id}); // 200
         }
       });
     })
@@ -58,10 +60,11 @@ module.exports = function (app) {
     .delete(function(req, res){
       database.deleteAllBooks((err, doc)=>{
         if(err==null) {
-          res.json({message:'complete delete successful'});
+          // is this metadata?
+          res.formatter.ok('complete delete successful'); // 200
         } else {
           console.log(err);
-          res.status(500).send(err.message);
+          res.formatter.serverError([err.message]); // 500
         }
       }); 
     });
@@ -80,11 +83,13 @@ module.exports = function (app) {
       database.getBooks({_id: bookid}, (err,doc)=>{
         if(err!==null) {
           console.log(err);
+          res.formatter.serverError([err]); // 500
         } else {
           if(doc.length==0) {
-            res.json(new Error("no book exists"));
+            //res.json(new Error("no book exists")); ?
+            res.formatter.serverError(["no book exists"]); // 500
           }
-          else res.json(doc[0]); // just one
+          else res.formatter.ok(doc[0]); // just one
         }        
       });
     })
@@ -98,8 +103,9 @@ module.exports = function (app) {
       database.addComment(bookid, comment, (err, doc)=>{
         if(err!==null) {
           console.log(err);
+          res.formatter.serverError([err]); // 500
         } else {
-          res.json(doc); // just one
+          res.formatter.ok(doc);
         }         
       });
     })
@@ -110,10 +116,12 @@ module.exports = function (app) {
       var bookid = req.params.id;
       database.deleteBook(bookid, (err, doc)=>{
         if(err==null) {
-          res.json({message:'delete successful'});
+          // meta?
+          res.formatter.ok('delete successful');
         } else {
           console.log(err);
-          res.status(500).send(err.message);
+          // err or err.message
+          res.formatter.serverError([err.message]); // 500
         }
       });    
     });

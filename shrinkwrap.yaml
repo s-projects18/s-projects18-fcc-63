@@ -4,6 +4,7 @@ dependencies:
   chai-http: 3.0.0
   cors: 2.8.5
   express: 4.17.1
+  express-response-formatter: 1.1.0
   helmet: 3.21.1
   mocha: 3.5.3
   mongodb: 3.3.2
@@ -562,6 +563,10 @@ packages:
       node: '>=4.0.0'
     resolution:
       integrity: sha512-6SK3MG/Bbhm8MsgyJAylg+ucIOU71/FzyFalcfu5nY19dH8y/z0tBJU0wrNBXD4B27EoQtqPF/9wqH0iYAd04g==
+  /express-response-formatter/1.1.0:
+    dev: false
+    resolution:
+      integrity: sha512-AnwkkIyX5dcD1DPLhgnEnlb4h8Nvxni5pQ/ICUmtDMbcyzpTiMFyjoIm6vFf9RI25ov4b7KTqwFir+dXTep9eg==
   /express/4.17.1:
     dependencies:
       accepts: 1.3.7
@@ -1961,6 +1966,7 @@ specifiers:
   chai-http: ^3.0.0
   cors: ^2.8.1
   express: ^4.17.1
+  express-response-formatter: ^1.1.0
   helmet: ^3.1.0
   mocha: ^3.2.0
   mongodb: ^3.3.2
