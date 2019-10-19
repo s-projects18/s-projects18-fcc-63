@@ -61,7 +61,7 @@ module.exports = function(app) {
       database.deleteAllBooks((err, doc)=>{
         if(err==null) {
           // is this metadata?
-          res.formatter.ok('complete delete successful'); // 200
+          res.formatter.ok(null, ['complete delete successful']); // 200
         } else {
           console.log(err);
           res.formatter.serverError([err.message]); // 500
@@ -71,8 +71,6 @@ module.exports = function(app) {
 
 
   // [2] route with id -----------------
-  
-// TODO: If I try to request a book that doesn't exist I will get a 'no book exists' message.
   
   // I can get /api/books/{_id} to retrieve a single object of a book containing title, _id,
   // & an array of comments (empty array if no comments present).
@@ -86,8 +84,7 @@ module.exports = function(app) {
           res.formatter.serverError([err]); // 500
         } else {
           if(doc.length==0) {
-            //res.json(new Error("no book exists")); ?
-            res.formatter.serverError(["no book exists"]); // 500
+            res.formatter.ok({}, "no book exists"); // 200
           }
           else res.formatter.ok(doc[0]); // just one
         }        
@@ -117,7 +114,7 @@ module.exports = function(app) {
       database.deleteBook(bookid, (err, doc)=>{
         if(err==null) {
           // meta?
-          res.formatter.ok('delete successful');
+          res.formatter.ok(null, ['delete successful']);
         } else {
           console.log(err);
           // err or err.message
