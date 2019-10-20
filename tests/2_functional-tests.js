@@ -45,7 +45,7 @@ suite('Functional Tests', function() {
         title: 'Functional Testing Title'  
       })
       .end(function(err, res){
-        globalBook = res.body.data; // for later use
+        globalBook = res.body.data[0]; // for later use
         globalBook.status = res.status;
       });    
   });
@@ -115,7 +115,7 @@ suite('Functional Tests', function() {
           .get('/api/books/' + globalBook['_id'])
           .end(function(err, res){
             assert.equal(res.status, 200);
-            assert.equal(res.body.data.title, 'Functional Testing Title');
+            assert.equal(res.body.data[0].title, 'Functional Testing Title');
             done();
           });
       });
@@ -143,7 +143,7 @@ suite('Functional Tests', function() {
           .get('/api/books/' + globalBook['_id'])
           .end(function(err, res){
             assert.equal(res.status, 200);
-            assert.equal(res.body.data.comments[0], 'Functional Testing Comment');
+            assert.equal(res.body.data[0].comments[0], 'Functional Testing Comment');
             done();
           });
       });

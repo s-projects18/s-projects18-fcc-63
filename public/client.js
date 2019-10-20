@@ -4,13 +4,13 @@ $( document ).ready(function() {
   
   $.getJSON('/api/books', function(data) {
     //var items = [];
-    itemsRaw = data;
-    $.each(data, function(i, val) {
+    itemsRaw = data.data;
+    $.each(data.data, function(i, val) {
       items.push('<li class="bookItem" id="' + i + '">' + val.title + ' - ' + val.commentcount + ' comments</li>');
       return ( i !== 14 );
     });
     if (items.length >= 15) {
-      items.push('<p>...and '+ (data.length - 15)+' more!</p>');
+      items.push('<p>...and '+ (data.data.length - 15)+' more!</p>');
     }
     $('<ul/>', {
       'class': 'listWrapper',
@@ -24,7 +24,8 @@ $( document ).ready(function() {
     $.ajax({
       url:'/api/books/'+itemsRaw[this.id]._id,
       type: 'get',
-      success: function(data) {
+      success: function(obj) {
+        var data = obj.data[0];
         comments = [];
         $.each(data.comments, function(i, val) {
           comments.push('<li>' +val+ '</li>');
@@ -45,9 +46,10 @@ $( document ).ready(function() {
     $.ajax({
       url: '/api/books/'+this.id,
       type: 'delete',
-      success: function(data) {
+      success: function(obj) {
+        var data = obj.data;
         //update list
-        $('#detailComments').html('<p style="color: red;">'+JSON.stringify(data)+'<p><p>Refresh the page</p>');
+        $('#detailComments').html('<p style="color: red;">'+obj.meta.join(',')+'<p><p>Refresh the page</p>');
       },
       error: function(jqXHR, textStatus, errorThrown ) {
         $('#detailComments').html("ERROR: " + jqXHR.responseText);
@@ -56,7 +58,6 @@ $( document ).ready(function() {
   });  
   
   $('#bookDetail').on('click','button.addComment',function() {
-    alert('commentToAdd')
     var newComment = $('#commentToAdd').val();
     $.ajax({
       url: '/api/books/'+this.id,
@@ -80,8 +81,9 @@ $( document ).ready(function() {
       type: 'post',
       dataType: 'json',
       data: $('#newBookForm').serialize(),
-      success: function(data) {
-        //update list
+      success: function(obj) {
+        var data = obj.data;
+        //update list -> reload
       },
       error: function(jqXHR, textStatus, errorThrown ) {
         $('#detailComments').html("ERROR: " + jqXHR.responseText);
@@ -96,15 +98,16 @@ $( document ).ready(function() {
       type: 'delete',
       dataType: 'json',
       data: $('#newBookForm').serialize(),
-      success: function(data) {
+      success: function(obj) {
         //update list
-        $('#bookDetail').html(data.message);
+        $('#bookDetail').html(obj.meta.join(','));
       },
       error: function(jqXHR, textStatus, errorThrown ) {
         $('#detailComments').html("ERROR: " + jqXHR.responseText);
       }
       
     });
-  }); 
-  
+  });  
+
+
 });

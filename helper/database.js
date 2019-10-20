@@ -89,10 +89,12 @@ exports.addComment = (bookId, comment, next) => {
           const book = JSON.parse(JSON.stringify(doc[0])); // just one
           book.updated_on = new Date();
           book.comments.push(comment);
+          
           Books.findOneAndUpdate({_id: bookId}, book, {}, (err, doc)=>{
             if(err!==null) {
               next(err, null);
             } else {
+              book.commentcount = book.comments.length;
               next(null, book);
             }
           }); 
