@@ -18,7 +18,6 @@ var database = require('./helper/database.js');
 // { meta: ..., data: ...,  error: ... }
 const responseEnhancer = require('express-response-formatter')
 
-
 // ================= [2] create + configure app =====================
 var app = express();
 
@@ -50,6 +49,11 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.route('/')
   .get(function (req, res) {
     res.sendFile(process.cwd() + '/views/index.html');
+  });
+
+app.route('/userstories.html')
+  .get(function (req, res) {
+    res.sendFile(process.cwd() + '/views/userstories.html');
   });
 
 // For FCC testing purposes

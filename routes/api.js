@@ -44,24 +44,23 @@ module.exports = function(app) {
         return;
       }
     
-      //response will contain new book object including atleast _id and title
+      // response will contain new book object including atleast _id and title
       database.insertBook({title: title}, (err, doc)=>{
         if(err!==null) {
           console.log(err);
           res.formatter.serverError(['Cannot insert book']); // 500
         } else {
-          res.formatter.ok({title: doc.title, _id: doc._id}); // 200
+          res.formatter.ok([{title: doc.title, _id: doc._id}]); // 200
         }
       });
-    })
+    }) 
     
     // I can send a delete request to /api/books to delete all books in the database.
     // Returned will be 'complete delete successful' if successful
     .delete(function(req, res){
       database.deleteAllBooks((err, doc)=>{
         if(err==null) {
-          // is this metadata?
-          res.formatter.ok(null, ['complete delete successful']); // 200
+          res.formatter.ok([], ['complete delete successful']); // 200
         } else {
           console.log(err);
           res.formatter.serverError([err.message]); // 500
@@ -81,12 +80,17 @@ module.exports = function(app) {
       database.getBooks({_id: bookid}, (err,doc)=>{
         if(err!==null) {
           console.log(err);
-          res.formatter.serverError([err]); // 500
+          if(err.name=='CastError') {
+            res.formatter.badRequest([err.message]); // 400  -> bad _id
+          } else {
+            res.formatter.serverError([err]); // 500  
+          }
+          
         } else {
           if(doc.length==0) {
-            res.formatter.ok({}, "no book exists"); // 200
+            res.formatter.ok([], "no book exists"); // 200
           }
-          else res.formatter.ok(doc[0]); // just one
+          else res.formatter.ok(doc); // just one, but return array
         }        
       });
     })
@@ -102,7 +106,7 @@ module.exports = function(app) {
           console.log(err);
           res.formatter.serverError([err]); // 500
         } else {
-          res.formatter.ok(doc);
+          res.formatter.ok([doc]);
         }         
       });
     })
@@ -114,7 +118,7 @@ module.exports = function(app) {
       database.deleteBook(bookid, (err, doc)=>{
         if(err==null) {
           // meta?
-          res.formatter.ok(null, ['delete successful']);
+          res.formatter.ok([], ['delete successful']);
         } else {
           console.log(err);
           // err or err.message
