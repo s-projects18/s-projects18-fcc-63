@@ -38,6 +38,8 @@ suite('Functional Tests', function() {
   var globalBook = {};
   
   // make test entry available for all suites
+  // TODO: add Promise (if setup takes a little longer: globBook is not available in following test!)
+  // https://stackoverflow.com/questions/24723374/async-function-in-mocha-before-is-alway-finished-before-it-spec
   suiteSetup(function() {
     chai.request(server)
       .post('/api/books')
